@@ -2,6 +2,3 @@
 title = "sciencekit documentation"
 authors = ["Guillaume Sarisson"]
 language = "en"
-
-[output.html]
-site-url = "/sciencekit-documentation/"
