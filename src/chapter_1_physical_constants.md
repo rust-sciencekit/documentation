@@ -4,7 +4,7 @@ This chapter describes the use of physical constants, such as the speed of light
 
 The constants in this module are available in the `f32` and the `f64` type. They can be found in the `sciencekit::constants::f32` and the `sciencekit::constants::f64` module respectively.
 
-``` rust
+``` rust, noplayground
 use sciencekit;
 
 fn main() {
@@ -77,7 +77,7 @@ The full list of constants is briefly described below.
 
 * `NEWTONIAN_GRAVITATIONAL_CONSTANT`
 
-    The newtonian constant of gravitation in **m³.kg⁻¹.s⁻²v**
+    The newtonian constant of gravitation in **m³.kg⁻¹.s⁻²**
 
 * `PLANCK_CONSTANT`
 

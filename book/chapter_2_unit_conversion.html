@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - sciencekit documentation</title>
+        <title>Unit Conversion - sciencekit documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -174,16 +174,200 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+                        <h1 id="unit-conversion"><a class="header" href="#unit-conversion">Unit conversion</a></h1>
+<p>The functions described in this chapter provide support for physical unit conversion. All of these functions have the same structure, the only difference between two functions is the quantity that needs to be converted (time, mass, length, …).</p>
+<p>Each function takes 4 arguments:</p>
+<ul>
+<li>The <code>f64</code> value we want to convert</li>
+<li>The current unit of the value</li>
+<li>The <code>f64</code> exponent of the unit. For example, a surface in <code>m⁻²</code> will have an exponent of <code>2</code></li>
+<li>The unit we want the value to be converted in</li>
+</ul>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>A unit conversion function will take the generic form</p>
+<pre><code class="language-rust noplayground">sciencekit::units::convert_&lt;QUANTITY&gt;(value, old_unit, exponent, new_unit);</code></pre>
+<p>For example, the following code snippet converts the Rydberg constant from <code>m⁻¹</code> to <code>nm⁻¹</code>:</p>
+<pre><code class="language-rust noplayground">use sciencekit::constants::f64::RYDBERG_CONSTANT;
+use sciencekit::units;
+
+fn main() {
+    let rydberg_meters: f64 = RYDBERG_CONSTANT;
+    let rydberg_nanometers: f64 = units::convert_length(rydberg_meters, units::Length::Meter, -1.0, units::Length::Nanometer);
+
+    println!("The Rydberg constant is equal to {rydberg_meters} m⁻¹ or {rydberg_nanometers} nm⁻¹!");
+}</code></pre>
+<pre><code>The Rydberg constant is equal to 10973731.568157 m⁻¹ or 0.010973731568157001 nm⁻¹!
+</code></pre>
+<p>More complex units can also be converted by converting each unit one by one. The following code snippet converts 1 dyne (or 1 g.cm.s⁻²) in Newtons (kg.m.s⁻²):</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    // 1 dyn = 1 g.cm.s⁻²
+    let value_dyne: f64 = 1.0;
+
+    // 1 N = 1 kg.m.s⁻²
+    let mut value_newton = units::convert_mass(value_dyne, units::Mass::Gram, 1.0, units::Mass::Kilogram);
+    value_newton = units::convert_length(value_newton, units::Length::Centimeter, 1.0, units::Length::Meter);
+
+    println!("{value_dyne} dyn is equal to {value_newton} N!");
+}</code></pre>
+<pre><code>1 dyn is equal to 0.00001 N!
+</code></pre>
+<h2 id="time-conversion"><a class="header" href="#time-conversion">Time conversion</a></h2>
+<p>Time conversion can be performed using the <code>sciencekit::units::convert_time()</code> function. The current unit as well as the target unit must be given to the function using the <code>Time</code> enum data type. The following units are available for conversion:</p>
+<ul>
+<li><code>Picosecond</code></li>
+<li><code>Nanosecond</code></li>
+<li><code>Microsecond</code></li>
+<li><code>Millisecond</code></li>
+<li><code>Second</code></li>
+<li><code>Kilosecond</code></li>
+<li><code>Minute</code></li>
+<li><code>Hour</code></li>
+<li><code>Day</code></li>
+<li><code>SideralDay</code></li>
+<li><code>Week</code></li>
+<li><code>Year</code></li>
+<li><code>TropicalYear</code></li>
+<li><code>SideralYear</code></li>
+</ul>
+<p>The following example converts 1800 seconds in hours.</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    let time_in_seconds: f64 = 1800.0;
+    let time_in_hours: f64 = units::convert_time(time_in_seconds, units::Time::Second, 1.0, units::Time::Hour);
+
+    println!("{time_in_seconds} seconds is equal to {time_in_hours} hours!");
+}</code></pre>
+<pre><code>1800 seconds is equal to 0.5 hours!
+</code></pre>
+<h2 id="length-conversion"><a class="header" href="#length-conversion">Length conversion</a></h2>
+<p>Length conversion can be performed using the <code>sciencekit::units::convert_length()</code> function. The current unit as well as the target unit must be given to the function using the <code>Length</code> enum data type. The following units are available for conversion:</p>
+<ul>
+<li><code>Kilometer</code></li>
+<li><code>Meter</code></li>
+<li><code>Centimeter</code></li>
+<li><code>Millimeter</code></li>
+<li><code>Micrometer</code></li>
+<li><code>Nanometer</code></li>
+<li><code>Angstrom</code></li>
+<li><code>Miles</code></li>
+<li><code>Yard</code></li>
+<li><code>Feet</code></li>
+<li><code>Inch</code></li>
+<li><code>NauticalMiles</code></li>
+</ul>
+<p>The following example converts 150 m² in ft².</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    let square_meters: f64 = 150.0;
+    let square_foot: f64 = units::convert_length(square_meters, units::Length::Meter, 2.0, units::Length::Feet);
+
+    println!("{square_meters} m² is equal to {square_foot} ft²!");
+}</code></pre>
+<pre><code>150 m² is equal to 1614.5865625064582 ft²!
+</code></pre>
+<h2 id="energy-conversion"><a class="header" href="#energy-conversion">Energy conversion</a></h2>
+<p>Energy conversion can be performed using the <code>sciencekit::units::convert_energy()</code> function. The current unit as well as the target unit must be given to the function using the <code>Energy</code> enum data type. The following units are available for conversion:</p>
+<ul>
+<li><code>Joule</code></li>
+<li><code>Kilojoule</code></li>
+<li><code>GramCalorie</code></li>
+<li><code>Kilocalorie</code></li>
+<li><code>WattHour</code></li>
+<li><code>KilowattHour</code></li>
+<li><code>Electronvolt</code></li>
+<li><code>BritishThermalUnit</code></li>
+<li><code>USTherm</code></li>
+<li><code>FootPound</code></li>
+</ul>
+<p>The following example converts 100 Joules in eV.</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    let joules: f64 = 100.0;
+    let electron_volt: f64 = units::convert_energy(joules, units::Energy::Joule, 1.0, units::Energy::Electronvolt);
+
+    println!("{joules} J is equal to {electron_volt} eV!");
+}</code></pre>
+<pre><code>100 J is equal to 624141805018100100000 eV!
+</code></pre>
+<h2 id="mass-conversion"><a class="header" href="#mass-conversion">Mass conversion</a></h2>
+<p>Mass conversion can be performed using the <code>sciencekit::units::convert_mass()</code> function. The current unit as well as the target unit must be given to the function using the <code>Mass</code> enum data type. The following units are available for conversion:</p>
+<ul>
+<li><code>Tonne</code></li>
+<li><code>Kilogram</code></li>
+<li><code>Gram</code></li>
+<li><code>Milligram</code></li>
+<li><code>Microgram</code></li>
+<li><code>ImperialTon</code></li>
+<li><code>USTon</code></li>
+<li><code>Stone</code></li>
+<li><code>Pound</code></li>
+<li><code>Ounce</code></li>
+</ul>
+<p>The following example converts 100 grams in pounds.</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    let gram: f64 = 100.0;
+    let pound: f64 = units::convert_mass(gram, units::Mass::Gram, 1.0, units::Mass::Pound);
+
+    println!("{gram} g is equal to {pound} pound!");
+}</code></pre>
+<pre><code>100 g is equal to 0.22046219825084087 pound!
+</code></pre>
+<h2 id="angle-conversion"><a class="header" href="#angle-conversion">Angle conversion</a></h2>
+<p>Angle conversion can be performed using the <code>sciencekit::units::convert_angle()</code> function. The current unit as well as the target unit must be given to the function using the <code>Angle</code> enum data type. The following units are available for conversion:</p>
+<ul>
+<li><code>Turn</code></li>
+<li><code>Arcsecond</code></li>
+<li><code>Arcminute</code></li>
+<li><code>Degree</code></li>
+<li><code>Gradian</code></li>
+<li><code>Radian</code></li>
+<li><code>Milliradian</code></li>
+</ul>
+<p>The following example converts π radians in degrees.</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    let angle_radian: f64 = std::f64::consts::PI;
+    let angle_degree: f64 = units::convert_angle(angle_radian, units::Angle::Radian, 1.0, units::Angle::Degree);
+
+    println!("{angle_radian} radians is equal to {angle_degree} degrees!");
+}</code></pre>
+<pre><code>3.141592653589793 radians is equal to 180 degrees!
+</code></pre>
+<h2 id="temperature-conversion"><a class="header" href="#temperature-conversion">Temperature conversion</a></h2>
+<p>Temperature conversion can be performed using the <code>sciencekit::units::convert_temperature()</code> function. The current unit as well as the target unit must be given to the function using the <code>Temperature</code> enum data type. The following units are available for conversion:</p>
+<ul>
+<li><code>Celsius</code></li>
+<li><code>Fahrenheit</code></li>
+<li><code>Kelvin</code></li>
+</ul>
+<p>The following example converts 32 Celsius in Fahrenheit.</p>
+<pre><code class="language-rust noplayground">use sciencekit::units;
+
+fn main() {
+    let celsius: f64 = 32.0;
+    let fahrenheit: f64 = units::convert_temperature(celsius, units::Temperature::Celsius, 1.0, units::Temperature::Fahrenheit);
+
+    println!("{celsius} Celsius is equal to {fahrenheit} Fahrenheit!");
+}</code></pre>
+<pre><code>32 Celsius is equal to 89.6 Fahrenheit!
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-
-                            <a rel="next prefetch" href="chapter_1_physical_constants.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            <a rel="prev" href="chapter_1_physical_constants.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
+
 
                         <div style="clear: both"></div>
                     </nav>
@@ -191,10 +375,10 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-
-                    <a rel="next prefetch" href="chapter_1_physical_constants.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    <a rel="prev" href="chapter_1_physical_constants.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
+
             </nav>
 
         </div>
