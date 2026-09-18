@@ -2,3 +2,6 @@
 title = "sciencekit documentation"
 authors = ["Guillaume Sarisson"]
 language = "en"
+
+[output.html]
+mathjax-support = true

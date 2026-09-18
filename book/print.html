@@ -30,16 +30,18 @@
 
         <!-- Custom theme stylesheets -->
 
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-fe28bb9a.js";
+            window.path_to_searchindex_js = "searchindex-e7918a41.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-3c308554.js"></script>
+        <script src="toc-63d8ed13.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -485,6 +487,257 @@ fn main() {
 }</code></pre>
 <pre><code>32 Celsius is equal to 89.6 Fahrenheit!
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="complex-numbers"><a class="header" href="#complex-numbers">Complex numbers</a></h1>
+<p>In this chapter, we give a detailed description of how to work with the complex number data type. Complex numbers are represented by the <code>Complex</code> type which is defined as:</p>
+<pre><code class="language-rust noplayground">struct Complex {
+    re: f64,
+    im: f64
+}</code></pre>
+<p>where <code>re</code> is the real part and <code>im</code> the imaginary part.</p>
+<h2 id="creating-a-new-complex-number"><a class="header" href="#creating-a-new-complex-number">Creating a new complex number</a></h2>
+<p>To create a new complex number, we can call the <code>Complex::new</code> function.</p>
+<pre><code class="language-rust noplayground">use sciencekit::complex::*;
+
+fn main() {
+    let z = Complex::new();
+    println!("z = {z}");
+}</code></pre>
+<pre><code>z = 0 + 0i
+</code></pre>
+<p>More specific complex numbers can also be created from cartesian coordinates using <code>Complex::from_cartesian</code> and from polar coordinates using <code>Complex::from_polar</code>.</p>
+<pre><code class="language-rust noplayground">use std::f64::consts::FRAC_PI_2;
+use sciencekit::complex::*;
+
+fn main() {
+    let z1 = Complex::from_cartesian(2.0, 1.0);
+    let z2 = Complex::from_polar(2.0, FRAC_PI_2);
+    
+    println!("z1 = {z1}");
+    println!("z2 = {z2}");
+}</code></pre>
+<pre><code>z1 = 2 + 1i
+z2 = 0.00000000000000012246467991473532 + 2i
+</code></pre>
+<p>Additionaly, a complex number can be created by directly creating a <code>struct</code> with a <code>re</code> and an <code>im</code> field.</p>
+<pre><code class="language-rust noplayground">use sciencekit::complex::*;
+
+fn main() {
+    let z = Complex { re: 1.0, im: 3.0 };
+    println!("z = {z}");
+}</code></pre>
+<pre><code>z = 1 + 3i
+</code></pre>
+<p>Both real and imaginary parts of a complex number can be accessed using the <code>.re</code> and <code>.im</code> syntax. Mutable complex numbers can also be modified directly using the same method.</p>
+<pre><code class="language-rust noplayground">use sciencekit::complex::*;
+
+fn main() {
+    let mut z = Complex::from_cartesian(2.0, 1.0);
+
+    println!("The real part of z is {}", z.re);
+
+    z.re = 4.0;
+
+    println!("Wait, now the real part of z is {}!", z.re);
+}</code></pre>
+<pre><code>The real part of z is 2
+Wait, now the real part of z is 4!
+</code></pre>
+<h2 id="complex-arithmetic"><a class="header" href="#complex-arithmetic">Complex arithmetic</a></h2>
+<p>Basic arithmetic operations (Addition, Substraction, multiplication, division, and negation) are fully implemented.</p>
+<pre><code class="language-rust noplayground">use sciencekit::complex::*;
+
+fn main() {
+    let z1 = Complex { re: 1.0, im: 2.0 };
+    let z2 = Complex { re: -2.0, im: 1.0 };
+
+    println!("z1 = {z1}");
+    println!("z2 = {z2}");
+
+    println!("z1 + z2 = {}", z1 + z2);
+    println!("z1 - z2 = {}", z1 - z2);
+    println!("z1 * z2 = {}", z1 * z2);
+    println!("z1 / z2 = {}", z1 / z2);
+
+    println!("-z1 = {}", -z1);
+}</code></pre>
+<pre><code>z1 = 1 + 2i
+z2 = -2 + 1i
+z1 + z2 = -1 + 3i
+z1 - z2 = 3 + 1i
+z1 * z2 = -4 + -3i
+z1 / z2 = 0 + -1i
+-z1 = -1 + -2i
+</code></pre>
+<p>The same arithmetic operations are also defined with the <code>f64</code> type.</p>
+<blockquote>
+<p>Note: Since the library is still on its early stage of development and because <code>f64</code> is assumed to be the most used type in scientific computing, only the <code>f64</code> type is defined for complex numbers. In the futur, I don’t see any reason to not make the complex type generic over any numerical data type (except that it requires a lot more work) so this is definitely going to change. However, I don’t expect this to introduce breaking changes so this documentation should’t be affected.</p>
+</blockquote>
+<pre><code class="language-rust noplayground">use sciencekit::complex::*;
+
+fn main() {
+    let z = Complex { re: 2.0, im: 3.0 };
+
+    println!("z + 2 = {}", z + 2.0);
+    println!("z - 2 = {}", z - 2.0);
+    println!("z * 2 = {}\n", z * 2.0);
+
+    println!("z / 2 = {}", z / 2.0);
+    println!("2 / z = {}", 2.0 / z);
+}</code></pre>
+<pre><code>z + 2 = 4 + 3i
+z - 2 = 0 + 3i
+z * 2 = 4 + 6i
+
+z / 2 = 1 + 1.5i
+2 / z = 0.3076923076923077 + -0.46153846153846156i
+</code></pre>
+<h2 id="elementary-complex-functions"><a class="header" href="#elementary-complex-functions">Elementary complex functions</a></h2>
+<p>The following functions are all implemented as part of the <code>Complex</code> type and can all be called using the <code>z.&lt;METHOD&gt;</code> syntax.</p>
+<ul>
+<li>
+<p><code>magnitude()</code></p>
+<p>The magnitude of a complex number. Defined as \( |a+bi| = \sqrt{a^2 + b^2} \)</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 3.0, im: 4.0 };
+let m = z.magnitude();  // m = 5.0</code></pre>
+</li>
+<li>
+<p><code>magnitude_squared()</code></p>
+<p>The squared magnitude of a complex number. Defined as \( |a+bi| = a^2 + b^2 \)</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 3.0, im: 4.0 };
+let m = z.magnitude_squared();  // m = 25.0</code></pre>
+</li>
+<li>
+<p><code>argument()</code></p>
+<p>The argument of a complex number. Where \( -\pi &lt; arg(z) &lt;= \pi \)</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+let arg = z.argument();  // arg = 0.785...</code></pre>
+</li>
+<li>
+<p><code>inverse()</code></p>
+<p>The inverse of a complex number defined as \( \frac{1}{z} \).</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 2.0, im: 3.0 };
+println!("1 / ({z}) = {}", z.inverse());</code></pre>
+<pre><code>1 / (2 + 3i) = 0.15384615384615385 + -0.23076923076923078i
+</code></pre>
+</li>
+<li>
+<p><code>conjugate()</code></p>
+<p>The complex comjugate a complex number \( \overline{a+bi} = a-bi \)</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("z* = {}", z.conjugate());</code></pre>
+<pre><code>z* = 1 - 1i
+</code></pre>
+</li>
+<li>
+<p><code>sqrt()</code></p>
+<p>The square root a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 2.0, im: 3.0 };
+println!("The square root of {z} = {}", z.sqrt());</code></pre>
+<pre><code>The square root of 2 + 3i = 1.6741492280355401 + 0.895977476129838i
+</code></pre>
+</li>
+<li>
+<p><code>powi()</code></p>
+<p>The complex number raised to an integer exponent</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("({z})² = {}", z.powi(2));</code></pre>
+<pre><code>(1 + 1i)² = 0.00000000000000017319121124709873 + 2.8284271247461907i
+</code></pre>
+</li>
+<li>
+<p><code>powf()</code></p>
+<p>The complex number raised to a real exponent</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("({z})² = {}", z.powf(2.0));</code></pre>
+<pre><code>(1 + 1i)² = 0.00000000000000017319121124709873 + 2.8284271247461907i
+</code></pre>
+</li>
+<li>
+<p><code>powc()</code></p>
+<p>The complex number raised to a complex exponent</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+let exponent = Complex { re: 2.0, im: 1.0 };
+println!("{z} exponent {exponent} is equal to {}", z.powc(exponent));</code></pre>
+<pre><code>1 + 1i exponent 2 + 1i is equal to -0.30974350492849356 + 0.8576580125887358i
+</code></pre>
+</li>
+<li>
+<p><code>exp()</code></p>
+<p>The exponential of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("exp({z}) = {}", z.exp());</code></pre>
+<pre><code>exp(1 + 1i) = 1.4686939399158851 + 2.2873552871788423i
+</code></pre>
+</li>
+<li>
+<p><code>ln()</code></p>
+<p>The natural logarithm of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("ln({z}) = {}", z.ln());</code></pre>
+<pre><code>ln(1 + 1i) = 0.3465735902799727 + 0.7853981633974483i
+</code></pre>
+</li>
+<li>
+<p><code>log()</code></p>
+<p>The base-b logarithm of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("log2({z}) = {}", z.log(2.0));</code></pre>
+<pre><code>log2(1 + 1i) = 0.5000000000000001 + 1.1330900354567985i
+</code></pre>
+</li>
+</ul>
+<h2 id="complex-trigonometric-functions"><a class="header" href="#complex-trigonometric-functions">Complex trigonometric functions</a></h2>
+<ul>
+<li>
+<p><code>sin()</code></p>
+<p>The complex sine of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("sin({z}) = {}", z.sin());</code></pre>
+<pre><code>sin(1 + 1i) = 1.2984575814159773 + 0.6349639147847361i
+</code></pre>
+</li>
+<li>
+<p><code>cos()</code></p>
+<p>The complex cosine of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("cos({z}) = {}", z.cos());</code></pre>
+<pre><code>cos(1 + 1i) = 0.8337300251311491 + -0.9888977057628651i
+</code></pre>
+</li>
+<li>
+<p><code>tan()</code></p>
+<p>The complex tangent of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("tan({z}) = {}", z.tan());</code></pre>
+<pre><code>tan(1 + 1i) = 0.2717525853195117 + 1.0839233273386946i
+</code></pre>
+</li>
+<li>
+<p><code>sec()</code></p>
+<p>The complex secant of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("sec({z}) = {}", z.sec());</code></pre>
+<pre><code>sec(1 + 1i) = 0.4983370305551868 + 0.591083841721045i
+</code></pre>
+</li>
+<li>
+<p><code>csc()</code></p>
+<p>The complex cosecant of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("csc({z}) = {}", z.csc());</code></pre>
+<pre><code>csc(1 + 1i) = 0.6215180171704283 + -0.3039310016284264i
+</code></pre>
+</li>
+<li>
+<p><code>cot()</code></p>
+<p>The complex cotangent of a complex number</p>
+<pre><code class="language-rust noplayground">let z = Complex { re: 1.0, im: 1.0 };
+println!("cot({z}) = {}", z.cot());</code></pre>
+<pre><code>cot(1 + 1i) = 0.21762156185440265 + -0.8680141428959249i
+</code></pre>
+</li>
+</ul>
 
                     </main>
 
@@ -528,7 +781,9 @@ fn main() {
 
         <script>
         window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
         });
         </script>
 
