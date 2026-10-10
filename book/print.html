@@ -38,10 +38,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e7918a41.js";
+            window.path_to_searchindex_js = "searchindex-201904fb.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-63d8ed13.js"></script>
+        <script src="toc-6715659c.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -543,6 +543,22 @@ fn main() {
 <pre><code>The real part of z is 2
 Wait, now the real part of z is 4!
 </code></pre>
+<h2 id="complex-constants"><a class="header" href="#complex-constants">Complex constants</a></h2>
+<p>Some useful complex constants are defined in the <code>sciencekit::constants::complex</code> module.</p>
+<ul>
+<li>
+<p><code>I</code></p>
+<p>The imaginary unit \( i = \sqrt{-1} \)</p>
+</li>
+<li>
+<p><code>ZERO</code></p>
+<p>The complex number \( z = 0 + 0i \)</p>
+</li>
+<li>
+<p><code>ONE</code></p>
+<p>The complex number \( z = 1 + 0i \)</p>
+</li>
+</ul>
 <h2 id="complex-arithmetic"><a class="header" href="#complex-arithmetic">Complex arithmetic</a></h2>
 <p>Basic arithmetic operations (Addition, Substraction, multiplication, division, and negation) are fully implemented.</p>
 <pre><code class="language-rust noplayground">use sciencekit::complex::*;
@@ -738,6 +754,382 @@ println!("cot({z}) = {}", z.cot());</code></pre>
 </code></pre>
 </li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="polynomials"><a class="header" href="#polynomials">Polynomials</a></h1>
+<p>This chapter covers the <code>Polynomial</code> type and how to use it.</p>
+<p>The <code>Polynomial</code> type is defined as a struct containing a vector of real coefficients:</p>
+<pre><code class="language-rust noplayground">    struct Polynomial {
+    coefficients: Vec&lt;f64&gt;
+}</code></pre>
+<p>where the first – or left-most – coefficient corresponds to the lowest power of \(x \). In this context, a polynomial of degree \(n \) has the form:</p>
+<p>\[
+p(x) = a_0 + a_1 x + a_2 x^2 + … + a_n x^n
+\]</p>
+<p>with \(a_n \) is the n-th element of the <code>coefficients</code> vector.</p>
+<h2 id="creating-a-polynomial"><a class="header" href="#creating-a-polynomial">Creating a polynomial</a></h2>
+<p>Polynomials can be created using the <code>sciencekit::polynomial!</code> macro. For example, the function \( f(x) = 3 + 2x + x^2 \) can be created like so:</p>
+<pre><code class="language-rust noplayground">    let p: Polynomial = sciencekit::polynomial![3, 2, 1];
+    println!("{p}");</code></pre>
+<pre><code>    x² + 2x + 3
+</code></pre>
+<blockquote>
+<p>Note: This macro works with any kind of number type. However, this doesn’t affect the way the polynomial stores its coefficients because everything is converted as <code>f64</code> under the hood.</p>
+</blockquote>
+<p>The code snippet above is equivalent to a call of the <code>Polynomial::from_coefficients</code> function. The only difference is that the coefficients must be of type <code>Vec&lt;f64&gt;</code>.</p>
+<pre><code class="language-rust noplayground">    let p = Polynomial::from_coefficients(vec![3.0, 2.0, 1.0]);
+    println!("{p}");</code></pre>
+<pre><code>    x² + 2x + 3
+</code></pre>
+<p>A default polynomial can also be made using the <code>Polynomial::new</code> function. Since the coefficients vector can’t be empty, the default polynomial is set to \( f(x) = 0 \).</p>
+<pre><code class="language-rust noplayground">    let p = Polynomial::new();
+    println!("{p}");</code></pre>
+<pre><code>    0
+</code></pre>
+<p>Polynomials can also be created from a collection of points. The <code>from_points</code> method takes a collection of n points in the form <code>Vec&lt;(f64, f64)&gt;</code> and uses the Newton interpolation method to return a polynomial of degree <code>n-1</code> that pass through all the points.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = Polynomial::from_points(vec![(-1.0, 0.0), (0.0, 1.0), (1.0, 0.0)]).unwrap();
+
+    println!("p(x) = {}\n", p);
+}</code></pre>
+<pre><code>p(x) = -x² + 1
+</code></pre>
+<p>Similarly, once can create a polynomial from a collection of roots.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = Polynomial::from_roots(vec![-1.0, 0.0, 1.0]);
+
+    println!("p(x) = {}\n", p);
+}</code></pre>
+<pre><code>p(x) = x³ - x
+</code></pre>
+<h2 id="evaluation-of-a-polynomial"><a class="header" href="#evaluation-of-a-polynomial">Evaluation of a polynomial</a></h2>
+<p>A polynomial can be evaluated for a given \( x \) of type <code>f64</code> using the <code>evaluate</code> function and of type <code>Complex</code> using the <code>evaluate_complex</code> function.</p>
+<pre><code class="language-rust noplayground">    use sciencekit::polynomial::*;
+    use sciencekit::complex::*;
+
+    fn main() {
+        let p = sciencekit::polynomial![1, 2, 3];
+        println!("p(x) = {p}");
+        println!("p(3) = {}", p.evaluate(3.0));
+        println!("p(1 + 2i) = {}", p.evaluate_complex(Complex { re: 1.0, im: 2.0}));
+    }</code></pre>
+<pre><code>    p(x) = 3x² + 2x + 1
+    p(3) = 34
+    p(1 + 2i) = -6 + 16i
+</code></pre>
+<h2 id="the-degree-of-a-polynomial"><a class="header" href="#the-degree-of-a-polynomial">The degree of a polynomial</a></h2>
+<p>The degree of a polynomial is given by the <code>degree</code> method.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    let degree_p: usize = p.degree();
+
+    println!("{p} is of degree {degree_p}");
+}</code></pre>
+<pre><code>3x² + 2x + 1 is of degree 2
+</code></pre>
+<blockquote>
+<p>Note: Technically speaking, the degree of a 0 polynomial is not clearly defined. The <code>degree</code> method could return an <code>Option&lt;usize&gt;</code> to be mathematicaly correct but that would add a lot of complexity in the code for such a simple function. So it returns 0 instead.</p>
+</blockquote>
+<h2 id="the-roots-of-a-polynomial"><a class="header" href="#the-roots-of-a-polynomial">The roots of a polynomial</a></h2>
+<p>The <code>real_roots</code> method returns the real roots of any polynomial in ascending order. Analytic solutions is given for polynomial of degree 1, 2, or 3. For polynomial of degrees higher than 3, the roots are computing using the eigenvalues of the companion matrix.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = Polynomial::from_roots(vec![-1.0, 1.0]);
+
+    println!("p(x) = {}\n", p);
+
+    let roots: Vec&lt;f64&gt; = p.real_roots();
+
+    println!("The roots of p are {:?}", roots);
+}</code></pre>
+<pre><code>p(x) = x² - 1
+
+The roots of p are [-1.0, 1.0]
+</code></pre>
+<h2 id="integral-and-derivative"><a class="header" href="#integral-and-derivative">Integral and derivative</a></h2>
+<p>The <code>differenciate</code> method transforms a polynomial into its derivative. The transformation is done in-place.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    println!("f(x) = {p}");
+
+    p.differentiate();
+    println!("f'(x) = {p}");
+}</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+f'(x) = 6x + 2
+</code></pre>
+<p>The <code>derivative</code> method acts as a non-mutating version of <code>differenciate</code>, it does the same thing but returns the derivative as a new polynomial.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    let q: Polynomial = p.derivative();
+
+    println!("f(x) = {p}");
+    println!("f'(x) = {q}");
+}</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+f'(x) = 6x + 2
+</code></pre>
+<p>The <code>integrate</code> method transforms a polynomial into its indefinite integral with a given constant. The transformation is done in-place.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    println!("f(x) = {p}");
+
+    p.integrate(2.0);
+    println!("∫f(x)dx = {p}");
+}</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+∫f(x)dx = x³ + x² + x + 2
+</code></pre>
+<p>The <code>integral</code> method acts as a non-mutating version of <code>integrate</code>, it does the same thing but returns the derivative as a new polynomial.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    let q: Polynomial = p.integral(2.0);
+
+    println!("f(x) = {p}");
+    println!("∫f(x)dx = {q}");
+}</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+∫f(x)dx  = x³ + x² + x + 2
+</code></pre>
+<h2 id="mutating-arithmetic-methods"><a class="header" href="#mutating-arithmetic-methods">Mutating arithmetic methods</a></h2>
+<p>basic Arithmetic operations between polynomials and between <code>Polynomial</code> and <code>f64</code> are allowed. All of them are available in the form of mutating methods.</p>
+<ul>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>add_polynomial(&amp;mut self, other: &amp;Polynomial)
+<span class="boring">}</span></code></pre>
+<p>Adds another polynomial to self.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+let q: Polynomial = sciencekit::polynomial![2, 8, 1, 6];
+
+println!("f(x) = {p}");
+println!("q(x) = {q}");
+
+println!("Adding q to p");
+p.add_polynomial(&amp;q);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+q(x) = 6x³ + x² + 8x + 2
+Adding q to p
+p(x) = 6x³ + 4x² + 10x + 3
+</code></pre>
+</li>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>add_real(&amp;mut self, x: f64)
+<span class="boring">}</span></code></pre>
+<p>Adds a real number to self.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+
+println!("f(x) = {p}");
+
+println!("Adding 1 to p");
+p.add_real(1.0);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+Adding 1 to p
+p(x) = 3x² + 2x + 2
+</code></pre>
+</li>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>sub_polynomial(&amp;mut self, other: &amp;Polynomial)
+<span class="boring">}</span></code></pre>
+<p>Substract another polynomial from self.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+let q: Polynomial = sciencekit::polynomial![2, 8, 1, 6];
+
+println!("f(x) = {p}");
+println!("q(x) = {q}");
+
+println!("Substracting q from p");
+p.sub_polynomial(&amp;q);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+q(x) = 6x³ + x² + 8x + 2
+Substracting q from p
+p(x) = -6x³ + 2x² - 6x - 1
+</code></pre>
+</li>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>sub_real(&amp;mut self, x: f64)
+<span class="boring">}</span></code></pre>
+<p>Substract a real number from self.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+
+println!("f(x) = {p}");
+
+println!("Adding 1 to p");
+p.sub_real(1.0);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+Substracting 1 from p
+p(x) = 3x² + 2x
+</code></pre>
+</li>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>mul_by_polynomial(&amp;mut self, other: &amp;Polynomial)
+<span class="boring">}</span></code></pre>
+<p>Multiply self by another polynomial.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+let q: Polynomial = sciencekit::polynomial![2, 8, 1, 6];
+
+println!("f(x) = {p}");
+println!("q(x) = {q}");
+
+println!("Multiplying p by q");
+p.mul_by_polynomial(&amp;q);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+q(x) = 6x³ + x² + 8x + 2
+Multiplying p by q
+p(x) = 18x⁵ + 15x⁴ + 32x³ + 23x² + 12x + 2
+</code></pre>
+</li>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>mul_by_real(&amp;mut self, x: f64)
+<span class="boring">}</span></code></pre>
+<p>Multiply self by a real number.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+
+println!("f(x) = {p}");
+
+println!("Multiplying p by 2");
+p.mul_by_real(2.0);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+Multiplying p by 2
+p(x) = 6x² + 4x + 2
+</code></pre>
+</li>
+<li>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>div_by_real(&amp;mut self, x: f64)
+<span class="boring">}</span></code></pre>
+<p>Divide self by a real number.</p>
+<pre><code class="language-rust noplayground">let mut p: Polynomial = sciencekit::polynomial![1, 2, 3];
+
+println!("f(x) = {p}");
+
+println!("Dividing p by 2");
+p.div_by_real(2.0);
+
+println!("p(x) = {p}");</code></pre>
+<pre><code>f(x) = 3x² + 2x + 1
+Dividing p by 2
+p(x) = 1.5x² + x + 0.5
+</code></pre>
+</li>
+</ul>
+<blockquote>
+<p>Note: The division between two polynomials is not defined because it generaly doesn’t returns another polynomial.</p>
+</blockquote>
+<h2 id="non-mutating-arithmetic-operators"><a class="header" href="#non-mutating-arithmetic-operators">Non-mutating arithmetic operators</a></h2>
+<p>Basic arithmetic operators (<code>+, -, *, /</code>) are also provided. All those operations must be used between references of polynomials <code>&amp;Polynomial</code> to avoid them to be moved.</p>
+<p>The following code, for instance, doesn’t compile:</p>
+<pre><code class="language-rust compile_fail noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    let q: Polynomial = sciencekit::polynomial![2, 3, 4, 5];
+
+    println!("p(x) = {}", p);
+    println!("q(x) = {}", q);
+
+    println!("p + q = {}", p + q);
+    println!("p - q = {}", &amp;p - &amp;q);  
+}</code></pre>
+<pre><code>error[E0382]: borrow of moved value: `p`
+...
+10 |     println!("p + q = {}", p + q);
+   |                            ----- `p` moved due to usage in operator
+11 |     println!("p - q = {}", &amp;p - &amp;q);  
+   |                            ^^ value borrowed here after move
+   |
+...
+error[E0382]: borrow of moved value: `q`
+...
+10 |     println!("p + q = {}", p + q);
+   |                                - value moved here
+11 |     println!("p - q = {}", &amp;p - &amp;q);  
+   |                                 ^^ value borrowed here after move
+   |
+...
+</code></pre>
+<p>The following code, however, works just fine.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = sciencekit::polynomial![1, 2, 3];
+    let q: Polynomial = sciencekit::polynomial![2, 3, 4, 5];
+
+    println!("p(x) = {}", p);
+    println!("q(x) = {}\n", q);
+
+    println!("p + q = {}", &amp;p + &amp;q);
+    println!("p - q = {}", &amp;p - &amp;q);
+    println!("p * q = {}", &amp;p * &amp;q);  
+}</code></pre>
+<pre><code>p(x) = 3x² + 2x + 1
+q(x) = 5x³ + 4x² + 3x + 2
+
+p + q = 5x³ + 7x² + 5x + 3
+p - q = -5x³ - x² - x - 1
+p * q = 15x⁵ + 22x⁴ + 22x³ + 16x² + 7x + 2
+</code></pre>
+<blockquote>
+<p>Note: The division between two polynomials is not defined because it generaly doesn’t returns another polynomial.</p>
+</blockquote>
+<p>The same operations (with divisions this time) are defined between polynomials and the <code>f64</code> type.</p>
+<pre><code class="language-rust noplayground">use sciencekit::polynomial::*;
+
+fn main() {
+    let p: Polynomial = sciencekit::polynomial![1, 2, 3];
+
+    println!("p(x) = {}\n", p);
+
+    println!("p + 2.0 = {}", &amp;p + 2.0);
+    println!("p - 2.0 = {}", &amp;p - 2.0);
+    println!("p * 2.0 = {}", &amp;p * 2.0);
+    println!("p / 2.0 = {}", &amp;p / 2.0);
+}</code></pre>
+<pre><code>p(x) = 3x² + 2x + 1
+
+p + 2.0 = 3x² + 2x + 3
+p - 2.0 = 3x² + 2x - 1
+p * 2.0 = 6x² + 4x + 2
+p / 2.0 = 1.5x² + x + 0.5
+</code></pre>
 
                     </main>
 

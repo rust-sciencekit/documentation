@@ -84,6 +84,23 @@ The real part of z is 2
 Wait, now the real part of z is 4!
 ```
 
+## Complex constants
+
+Some useful complex constants are defined in the `sciencekit::constants::complex` module.
+
+* `I`
+
+    The imaginary unit \\( i = \sqrt{-1} \\)
+    
+* `ZERO`
+
+    The complex number \\( z = 0 + 0i \\)
+    
+* `ONE`
+
+    The complex number \\( z = 1 + 0i \\)
+
+
 ## Complex arithmetic
 
 Basic arithmetic operations (Addition, Substraction, multiplication, division, and negation) are fully implemented.
